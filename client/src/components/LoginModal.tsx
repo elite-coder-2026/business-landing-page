@@ -1,4 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import type { User } from '../api/auth'
+import { login } from '../api/auth'
 import {
   Body,
   CheckboxLabel,
@@ -9,6 +11,7 @@ import {
   Field,
   FooterText,
   Form,
+  FormError,
   Header,
   HelperRow,
   Input,
@@ -25,6 +28,7 @@ interface LoginModalProps {
   open?: boolean
   onClose?: () => void
   onRegisterClick?: () => void
+  onAuthenticated?: (user: User) => void
 }
 
 const noop = () => {}
@@ -33,7 +37,11 @@ export function LoginModal({
   open = false,
   onClose = noop,
   onRegisterClick,
+  onAuthenticated,
 }: LoginModalProps) {
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
   useEffect(() => {
     if (!open) {
       return undefined
@@ -92,13 +100,42 @@ export function LoginModal({
           <Divider>or use email</Divider>
 
           <Form
-            onSubmit={(event) => {
+            onSubmit={async (event) => {
               event.preventDefault()
+              setError('')
+              setLoading(true)
+
+              const formData = new FormData(event.currentTarget)
+
+              try {
+                const result = await login({
+                  email: String(formData.get('email') ?? ''),
+                  password: String(formData.get('password') ?? ''),
+                })
+
+                onAuthenticated?.(result.user)
+                onClose()
+              } catch (caughtError) {
+                setError(
+                  caughtError instanceof Error
+                    ? caughtError.message
+                    : 'Unable to log in',
+                )
+              } finally {
+                setLoading(false)
+              }
             }}
           >
+            {error && <FormError>{error}</FormError>}
             <Field>
               Email
-              <Input type="email" name="email" autoComplete="email" required />
+              <Input
+                type="email"
+                name="email"
+                autoComplete="email"
+                disabled={loading}
+                required
+              />
             </Field>
 
             <Field>
@@ -107,6 +144,7 @@ export function LoginModal({
                 type="password"
                 name="password"
                 autoComplete="current-password"
+                disabled={loading}
                 required
               />
             </Field>
@@ -119,7 +157,9 @@ export function LoginModal({
               <TextLink href="#forgot-password">Forgot password?</TextLink>
             </HelperRow>
 
-            <SubmitButton type="submit">Log In</SubmitButton>
+            <SubmitButton type="submit" disabled={loading}>
+              {loading ? 'Logging in...' : 'Log In'}
+            </SubmitButton>
           </Form>
 
           <FooterText>

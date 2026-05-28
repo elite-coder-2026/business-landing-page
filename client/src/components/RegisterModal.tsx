@@ -1,4 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import type { User } from '../api/auth'
+import { register } from '../api/auth'
 import {
   Body,
   CheckboxLabel,
@@ -9,6 +11,7 @@ import {
   Field,
   FooterText,
   Form,
+  FormError,
   Header,
   Input,
   Overlay,
@@ -24,6 +27,7 @@ interface RegisterModalProps {
   open?: boolean
   onClose?: () => void
   onLoginClick?: () => void
+  onAuthenticated?: (user: User) => void
 }
 
 const noop = () => {}
@@ -32,7 +36,11 @@ export function RegisterModal({
   open = false,
   onClose = noop,
   onLoginClick,
+  onAuthenticated,
 }: RegisterModalProps) {
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
   useEffect(() => {
     if (!open) {
       return undefined
@@ -91,18 +99,65 @@ export function RegisterModal({
           <Divider>or register with email</Divider>
 
           <Form
-            onSubmit={(event) => {
+            onSubmit={async (event) => {
               event.preventDefault()
+              setError('')
+              setLoading(true)
+
+              const formData = new FormData(event.currentTarget)
+              const password = String(formData.get('password') ?? '')
+              const confirmPassword = String(
+                formData.get('confirmPassword') ?? '',
+              )
+
+              if (password !== confirmPassword) {
+                setError('Passwords do not match')
+                setLoading(false)
+                return
+              }
+
+              try {
+                const result = await register({
+                  name: String(formData.get('name') ?? ''),
+                  email: String(formData.get('email') ?? ''),
+                  password,
+                  confirmPassword,
+                })
+
+                onAuthenticated?.(result.user)
+                onClose()
+              } catch (caughtError) {
+                setError(
+                  caughtError instanceof Error
+                    ? caughtError.message
+                    : 'Unable to create account',
+                )
+              } finally {
+                setLoading(false)
+              }
             }}
           >
+            {error && <FormError>{error}</FormError>}
             <Field>
               Full name
-              <Input type="text" name="name" autoComplete="name" required />
+              <Input
+                type="text"
+                name="name"
+                autoComplete="name"
+                disabled={loading}
+                required
+              />
             </Field>
 
             <Field>
               Email
-              <Input type="email" name="email" autoComplete="email" required />
+              <Input
+                type="email"
+                name="email"
+                autoComplete="email"
+                disabled={loading}
+                required
+              />
             </Field>
 
             <Field>
@@ -112,6 +167,7 @@ export function RegisterModal({
                 name="password"
                 autoComplete="new-password"
                 minLength={8}
+                disabled={loading}
                 required
               />
             </Field>
@@ -123,16 +179,19 @@ export function RegisterModal({
                 name="confirmPassword"
                 autoComplete="new-password"
                 minLength={8}
+                disabled={loading}
                 required
               />
             </Field>
 
             <CheckboxLabel>
-              <input type="checkbox" name="terms" required />
+              <input type="checkbox" name="terms" disabled={loading} required />
               I agree to the terms and privacy policy
             </CheckboxLabel>
 
-            <SubmitButton type="submit">Create Account</SubmitButton>
+            <SubmitButton type="submit" disabled={loading}>
+              {loading ? 'Creating account...' : 'Create Account'}
+            </SubmitButton>
           </Form>
 
           <FooterText>

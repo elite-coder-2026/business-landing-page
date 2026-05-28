@@ -192,6 +192,11 @@ export const SubmitButton = styled.button`
   font-size: 0.95rem;
   font-weight: 800;
   box-shadow: 0 18px 34px rgba(21, 24, 31, 0.18);
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.68;
+  }
 `
 
 export const FooterText = styled.p`
@@ -200,4 +205,15 @@ export const FooterText = styled.p`
   font-size: 0.9rem;
   line-height: 1.5;
   text-align: center;
+`
+
+export const FormError = styled.div`
+  padding: 10px 12px;
+  border: 1px solid rgba(176, 44, 44, 0.24);
+  border-radius: 7px;
+  background: rgba(176, 44, 44, 0.08);
+  color: #8f1f1f;
+  font-size: 0.9rem;
+  font-weight: 750;
+  line-height: 1.45;
 `

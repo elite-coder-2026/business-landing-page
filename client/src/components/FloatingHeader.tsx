@@ -1,4 +1,5 @@
 import { type MouseEvent, useState } from 'react'
+import type { User } from '../api/auth'
 import {
   Actions,
   Brand,
@@ -24,13 +25,17 @@ const links = [
 ]
 
 interface FloatingHeaderProps {
+  user?: User | null
   onLoginClick?: () => void
   onRegisterClick?: () => void
+  onLogoutClick?: () => void
 }
 
 export function FloatingHeader({
+  user,
   onLoginClick,
   onRegisterClick,
+  onLogoutClick,
 }: FloatingHeaderProps) {
   const [open, setOpen] = useState(false)
   const handleLoginClick = (event: MouseEvent<HTMLAnchorElement>) => {
@@ -50,6 +55,15 @@ export function FloatingHeader({
     event.preventDefault()
     setOpen(false)
     onRegisterClick()
+  }
+  const handleLogoutClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (!onLogoutClick) {
+      return
+    }
+
+    event.preventDefault()
+    setOpen(false)
+    onLogoutClick()
   }
 
   return (
@@ -71,12 +85,23 @@ export function FloatingHeader({
         </DesktopLinks>
 
         <Actions>
-          <Button href="#login" onClick={handleLoginClick}>
-            Login
-          </Button>
-          <SecondaryButton href="#register" onClick={handleRegisterClick}>
-            Register
-          </SecondaryButton>
+          {user ? (
+            <>
+              <SecondaryButton href="#account">{user.name}</SecondaryButton>
+              <Button href="#logout" onClick={handleLogoutClick}>
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button href="#login" onClick={handleLoginClick}>
+                Login
+              </Button>
+              <SecondaryButton href="#register" onClick={handleRegisterClick}>
+                Register
+              </SecondaryButton>
+            </>
+          )}
           <MenuButton
             type="button"
             aria-label="Toggle navigation menu"
@@ -95,12 +120,23 @@ export function FloatingHeader({
           </MobileLink>
         ))}
         <MobileActions>
-          <SecondaryButton href="#login" onClick={handleLoginClick}>
-            Sign In
-          </SecondaryButton>
-          <Button href="#register" onClick={handleRegisterClick}>
-            Get Started
-          </Button>
+          {user ? (
+            <>
+              <SecondaryButton href="#account">{user.name}</SecondaryButton>
+              <Button href="#logout" onClick={handleLogoutClick}>
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <SecondaryButton href="#login" onClick={handleLoginClick}>
+                Sign In
+              </SecondaryButton>
+              <Button href="#register" onClick={handleRegisterClick}>
+                Get Started
+              </Button>
+            </>
+          )}
         </MobileActions>
       </MobilePanel>
     </HeaderShell>
