@@ -11,6 +11,11 @@ export const HeaderShell = styled.header`
   background: rgba(255, 255, 255, 0.84);
   box-shadow: 0 18px 48px rgba(19, 24, 32, 0.1);
   backdrop-filter: blur(18px);
+
+  @media (max-width: 520px) {
+    top: 12px;
+    width: min(100% - 16px, 760px);
+  }
 `
 
 export const Nav = styled.nav`
@@ -101,6 +106,12 @@ export const Actions = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+
+  @media (max-width: 520px) {
+    > a {
+      display: none;
+    }
+  }
 `
 
 export const Button = styled.a`

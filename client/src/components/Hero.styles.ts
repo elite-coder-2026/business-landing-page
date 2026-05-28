@@ -6,6 +6,11 @@ export const HeroSection = styled.section`
   overflow: hidden;
   padding: 108px 16px 96px;
   color: #15181f;
+
+  @media (max-width: 520px) {
+    min-height: 680px;
+    padding: 88px 8px 72px;
+  }
 `
 
 export const Canvas = styled.canvas`
@@ -88,6 +93,11 @@ export const TitleFrame = styled.div`
   box-shadow: 0 28px 70px rgba(21, 24, 31, 0.08);
   mask-image: radial-gradient(820px 260px at center, white, transparent);
   backdrop-filter: blur(10px);
+
+  @media (max-width: 520px) {
+    margin-top: 34px;
+    padding: 34px 14px;
+  }
 `
 
 export const CornerMark = styled.span<{
@@ -132,6 +142,11 @@ export const Title = styled.h1`
   font-weight: 820;
   line-height: 0.95;
   letter-spacing: 0;
+
+  @media (max-width: 520px) {
+    font-size: clamp(2.35rem, 10.5vw, 3rem);
+    line-height: 1.03;
+  }
 `
 
 export const Availability = styled.div`
@@ -183,11 +198,17 @@ export const Pulse = styled.span`
 
 export const Intro = styled.h2`
   margin: 34px 0 0;
+  max-width: 920px;
   color: #15181f;
   font-size: clamp(1.25rem, 2.4vw, 1.75rem);
   font-weight: 760;
   line-height: 1.25;
   letter-spacing: 0;
+
+  @media (max-width: 520px) {
+    max-width: 100%;
+    font-size: 1.24rem;
+  }
 `
 
 export const Highlight = styled.span`
